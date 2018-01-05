@@ -38,7 +38,7 @@ buildscript {
     ...
 }
 ...
-``` 
+```
 
 * Update the gradle version to `2.14.1` in `android/gradle/wrapper/gradle-wrapper.properties`:
 ```
@@ -116,16 +116,42 @@ check the docs of each library on how to link manually.
   </PhotoUpload>
  ```
 
+
  ## Props
 
  Prop | Type | Description
  -----|------|------------
  containerStyle | Object | Style object for the image container
- photoPickerTitle | String | Title for the image picker prompt, default is 'Select Photo'
+ pickerTitle | String | Title for the image picker prompt, default is 'Select Photo'
+ pickerProps | Object | The original ImagePicker props / options * [react-native-image-picker#options](https://github.com/react-community/react-native-image-picker#options)
  height | Number | the resized image height, default is 300
  width | Number | the resized image width, default is 300
  format | String | The format desired of the resized image, 'JPEG' or 'PNG' default is 'JPEG'
  quality | Number | The quality of the resized image indicated by a number between 1 and 100, default is 80
- onPhotoSelect | Function | function which takes the base64 string of the new image as parameter
+ onPhotoSelect | Function | function which return combined object (details below)
 
+ ## The Response Object
 
+ Prop | Description
+ -----|------------
+ didCancel | Informs you if the user cancelled the process
+ error | Contains an error message, if there is one
+ customButton | If the user tapped one of your custom buttons, contains the name of it
+ name | The file name
+ size | The file size
+ path | The file path
+ uri | The uri to the local file asset on the device
+ base64 | The base64 encoded image data
+ maxWidth | Max width from config
+ maxHeight | Max height from config
+ original | Original ImagePicker response witch exclude `data` key
+ original.fileName | Original file name
+ original.fileSize | Original file size
+ original.timestamp | Timestamp metadata, if available, in ISO8601 UTC forma
+ original.width | Original file width
+ original.height | Original file height
+ original.isVertical | Will be true if the image is vertically oriented
+ original.longitude | Longitude metadata, if available
+ original.latitude | Latitude metadata, if available
+ original.uri | The uri to the local file asset on the device
+ original.origURL | The URL of the original asset in photo library, if it exists

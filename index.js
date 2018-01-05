@@ -19,6 +19,7 @@ export default class PhotoUpload extends React.Component {
     width: PropTypes.number,
     format: PropTypes.string,
     quality: PropTypes.number,
+    pickerProps: PropTypes.object,
     onPhotoSelect: PropTypes.func // returns the base64 string of uploaded photo
   }
 
@@ -34,23 +35,17 @@ export default class PhotoUpload extends React.Component {
     storageOptions: {
       skipBackup: true,
       path: 'images'
-    }
+    },
+    ...this.props.pickerProps // you can any original ImagePicker props
   }
 
   openImagePicker = () => {
     // get image from image picker
     ImagePicker.showImagePicker(this.options, async response => {
-      console.log('Response = ', response)
 
-      if (response.didCancel) {
-        console.log('User cancelled image picker')
-        return
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error)
-        return
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton)
-        return
+      if ( response.didCancel || response.error || response.customButton ) {
+        this.response( response );
+        return;
       }
 
       let { height, width, quality, format } = this.state
@@ -70,15 +65,35 @@ export default class PhotoUpload extends React.Component {
       // convert image back to base64 string
       const photoData = await RNFS.readFile(filePath, 'base64')
       let source = { uri: resizedImageUri.uri }
+
       this.setState({
         avatarSource: source
       })
 
-      // handle photo in props functions as data string
-      if (this.props.onPhotoSelect) {
-        this.props.onPhotoSelect(photoData)
-      }
+      this.response({
+        ...resizedImageUri,
+        maxWidth: width,
+        maxHeight: height,
+        base64: photoData,
+        original: {
+          fileSize: response.fileSize,
+          timestamp: response.timestamp,
+          uri: response.uri,
+          origURL: response.origURL,
+          fileName: response.fileName,
+          width: response.width,
+          height: response.height,
+          isVertical: response.isVertical,
+          longitude: response.longitude,
+          latitude: response.latitude
+        }
+      })
     })
+  }
+
+  response = ( data = {} ) => {
+    if ( this.props.onPhotoSelect && typeof this.props.onPhotoSelect == 'function' )
+      this.props.onPhotoSelect(data)
   }
 
   renderChildren = props => {
